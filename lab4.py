@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QMessageBox
 class DatasetAnnotationApp(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-
-        self.initUI()
+        self.initUI()        
+        self.prevclassName = "123"
 
     def initUI(self):
         self.setWindowTitle("Dataset Annotation App")
@@ -92,18 +92,22 @@ class DatasetAnnotationApp(QtWidgets.QMainWindow):
         else:
             QtWidgets.QMessageBox.information(self, 'Конец датасета', f'Все экземпляры класса {self.class_label} закончились.')
             self.current_instance = None
-            
+    
     instances = []
     def get_next_instance(self, class_label, dataset_path):
-            for root, dirs, files in os.walk(dataset_path):
-                if os.path.basename(root) == class_label:
-                    self.instances.extend([os.path.join(root, filename) for filename in files])
+        if self.prevclassName != class_label:
+            self.instances = []
+            self.prevclassName = class_label
 
-            random.shuffle(self.instances)            
-            if self.instances:
-                return self.instances.pop()
-            else:
-                return None
+        for root, dirs, files in os.walk(dataset_path):
+            if os.path.basename(root) == class_label:
+                self.instances.extend([os.path.join(root, filename) for filename in files])
+
+        random.shuffle(self.instances)
+        if self.instances:
+            return self.instances.pop()
+        else:
+            return None
 def main():
     app = QtWidgets.QApplication(sys.argv)
     window = DatasetAnnotationApp()
